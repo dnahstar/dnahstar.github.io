@@ -141,7 +141,8 @@ const ChartTooltipContent = React.forwardRef<
   }, [hideLabel])
 
     return null
-    
+  }
+}
 
 
 
