@@ -17,21 +17,23 @@ const Chart = RechartsPrimitive.ResponsiveContainer
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
-const ChartTooltipContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip>
->(({ hideLabel = false, ...props }, ref) => { // 에러가 났던 payload 부분을 수정했습니다.
-  const { config } = useChart()
+// 컴퓨터에게 hideLabel이 무엇인지 확실히 알려주는 부분입니다.
+interface CustomTooltipProps extends React.ComponentProps<typeof RechartsPrimitive.Tooltip> {
+  hideLabel?: boolean;
+}
 
-  const tooltipLabel = React.useMemo(() => {
-    if (hideLabel) {
+const ChartTooltipContent = React.forwardRef<HTMLDivElement, CustomTooltipProps>(
+  (props, ref) => {
+    const { hideLabel = false } = props
+    const { config } = useChart()
+
+    const tooltipLabel = React.useMemo(() => {
       return null
-    }
-    return null
-  }, [hideLabel])
+    }, [])
 
-  return null
-})
+    return null
+  }
+)
 ChartTooltipContent.displayName = "ChartTooltip"
 
 const ChartLegend = RechartsPrimitive.Legend
