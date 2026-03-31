@@ -22,7 +22,7 @@ export function PiStackGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const engineRef = useRef<PhysicsEngine | null>(null)
   const animationFrameRef = useRef<number>(0)
-  const dropIntervalRef = useRef<NodeJS.Timeout>()
+  const dropIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const catcherIdRef = useRef<string>("catcher")
 
   const [score, setScore] = useState(0)
