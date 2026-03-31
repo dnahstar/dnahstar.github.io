@@ -1,11 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 깃허브 페이지 배포를 위해 정적 파일 생성을 활성화합니다.
-  output: 'export',
-  // 이미지 최적화 기능이 깃허브 서버에서는 작동하지 않으므로 끕니다.
+  output: 'export', // 정적 배포를 위해 반드시 필요
   images: {
-    unoptimized: true,
+    unoptimized: true, // 이미지 최적화 에러 방지 (핵심!)
   },
+  // 경로가 꼬이는 걸 방지하기 위해 추가
+  trailingSlash: true,
 };
 
 export default nextConfig;
