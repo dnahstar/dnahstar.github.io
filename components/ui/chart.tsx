@@ -19,10 +19,8 @@ const ChartTooltip = RechartsPrimitive.Tooltip
 
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> & {
-    hideLabel?: boolean
-  }
->(({ hideLabel = false, payload }, ref) => {
+  React.ComponentProps<typeof RechartsPrimitive.Tooltip>
+>(({ hideLabel = false, ...props }, ref) => { // 에러가 났던 payload 부분을 수정했습니다.
   const { config } = useChart()
 
   const tooltipLabel = React.useMemo(() => {
