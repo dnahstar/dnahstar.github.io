@@ -13,6 +13,7 @@ function useChart() {
   return context
 }
 
+// 에러 해결을 위해 Chart와 ChartTooltip 정의를 추가했습니다
 const Chart = RechartsPrimitive.ResponsiveContainer
 const ChartTooltip = RechartsPrimitive.Tooltip
 
