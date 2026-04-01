@@ -23,12 +23,6 @@ interface CustomTooltipProps extends React.ComponentProps<typeof RechartsPrimiti
 const ChartTooltipContent = React.forwardRef<HTMLDivElement, CustomTooltipProps>(
   (props, ref) => {
     const { hideLabel = false } = props
-    const { config } = useChart()
-
-    const tooltipLabel = React.useMemo(() => {
-      return null
-    }, [])
-
     return null
   }
 )
