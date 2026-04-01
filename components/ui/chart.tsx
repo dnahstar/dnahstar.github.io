@@ -42,6 +42,9 @@ ChartLegendContent.displayName = "ChartLegend"
 
 const ChartStyle = ({ id, config }: { id: string; config: any }) => null
 
+const Chart = RechartsPrimitive.ResponsiveContainer
+const ChartTooltip = RechartsPrimitive.Tooltip
+
 export {
   Chart,
   ChartTooltip,
