@@ -1,5 +1,5 @@
 import "./globals.css";
-import Script from "next/script"; // Script 컴포넌트 추가
+import Script from "next/script";
 
 export const metadata = {
   title: "PIONEERS!! - Ring Catcher",
@@ -10,15 +10,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ko">
       <head>
-        {/* 파이 네트워크 SDK 스크립트 (Next.js 권장 방식) */}
+        {/* 파이 네트워크 SDK 스크립트 (최적화 버전) */}
         <Script 
           src="https://sdk.minepi.com/pi-sdk.js" 
           strategy="beforeInteractive" 
         />
       </head>
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
