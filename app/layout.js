@@ -10,7 +10,7 @@ export default function RootLayout({ children }) {
     <html lang="ko">
       <head>
         {/* Pi SDK를 최상단에서 로드하여 인증 안정성 확보 */}
-        <script src="https://sdk.minepi.com/pi-sdk.js" defer></script>
+        <script src="https://sdk.minepi.com/pi-sdk.js"></script>
       </head>
       <body className="antialiased">{children}</body>
     </html>
