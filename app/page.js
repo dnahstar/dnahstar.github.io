@@ -75,8 +75,8 @@ export default function RingCatcherGame() {
   };
 
   useEffect(() => {
-    // 페이지 로드 후 1초 뒤에 인증 시작 (브라우저 초기화 시간 확보)
-    const timer = setTimeout(() => handleAuth(), 1000);
+    // 페이지 로드 후 3초 뒤에 인증 시작 (브라우저 초기화 시간 확보)
+    const timer = setTimeout(() => handleAuth(), 3000);
     return () => clearTimeout(timer);
   }, []);
 
