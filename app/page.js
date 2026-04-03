@@ -44,20 +44,36 @@ export default function RingCatcherGame() {
     if (s) { s.currentTime = 0; s.play().catch(() => {}); }
   };
 
-  const handleAuth = async () => {
-    if (typeof window !== "undefined" && window.Pi) {
-      try {
-        await window.Pi.init({ version: "1.5", sandbox: true });
-        const auth = await window.Pi.authenticate(['username'], () => {});
-        setUsername(auth.user.username);
-        setAuthStatus("인증 성공");
-      } catch (e) {
-        setAuthStatus("인증 오류 (재시도 필요)");
+   const handleAuth = async () => {
+    // SDK 로드 확인을 위한 반복 체크 (최대 10회 시도)
+    let retryCount = 0;
+    const checkSDK = setInterval(async () => {
+      if (typeof window !== "undefined" && window.Pi) {
+        clearInterval(checkSDK);
+        try {
+          await window.Pi.init({ version: "1.5", sandbox: true });
+          const auth = await window.Pi.authenticate(['username'], (error) => {
+            console.error(error);
+            setAuthStatus("인증 오류 (재시도 필요)");
+          });
+          setUsername(auth.user.username);
+          setAuthStatus("인증 성공");
+        } catch (e) {
+          setAuthStatus("인증 오류 (재시도 필요)");
+        }
+      } else {
+        retryCount++;
+        if (retryCount > 10) {
+          clearInterval(checkSDK);
+          setAuthStatus("SDK 로드 실패 (새로고침)");
+        }
       }
-    }
+    }, 500);
   };
 
-  useEffect(() => { handleAuth(); }, []);
+  useEffect(() => {
+    handleAuth();
+  }, []);
 
   const startGame = () => {
     setScore(0); setLives(MAX_LIVES); setLastBonusMilestone(0);
