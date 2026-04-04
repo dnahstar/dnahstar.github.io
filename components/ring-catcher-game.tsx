@@ -129,14 +129,12 @@ export function RingCatcherGame() {
     }
   }, []);
  // --- 130번 줄 다음에 추가 시작 ---
-  const handleLogin = useCallback(async () => {
+   const handleLogin = useCallback(async () => {
     if (typeof window !== 'undefined' && window.Pi) {
       try {
         const scopes = ['username'];
-        // 인자를 하나만 전달하도록 수정하여 타입 에러 해결
-        const auth = await window.Pi.authenticate(scopes, (payment: any) => {
-          console.log("Incomplete payment found:", payment);
-        });
+        // 에러 원인이었던 두 번째 인자(callback)를 완전히 제거했습니다.
+        const auth = await window.Pi.authenticate(scopes);
         
         if (auth && auth.user) {
           setUsername(auth.user.username);
@@ -147,6 +145,7 @@ export function RingCatcherGame() {
       }
     }
   }, []);
+
   // --- 추가 끝 ---
   // 기존 코드들과의 호환성을 위해 남겨두는 별칭 함수
   const playCatchSound = useCallback(() => playSound('catch'), [playSound]);
