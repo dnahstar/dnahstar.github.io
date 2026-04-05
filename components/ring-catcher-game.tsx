@@ -142,14 +142,6 @@ export function RingCatcherGame() {
     }
   }, [bgmAudio]);
 
-   // --- 125번 줄: 효과음 재생 함수 (playSound) ---
-  const playSound = useCallback((type: 'catch' | 'bomb' | 'fever' | 'gameover' | 'winner') => {
-    if (typeof Audio !== 'undefined') {
-      const audio = new Audio(`/sounds/${type}.mp3`);
-      audio.volume = 0.5; // 효과음 볼륨 (0.0 ~ 1.0)
-      audio.play().catch((e) => console.log(`${type} 사운드 재생 실패:`, e));
-    }
-  }, []);
  // --- 130번 줄 다음에 추가 시작 ---
    const handleLogin = useCallback(async () => {
     if (typeof window !== 'undefined' && window.Pi) {
