@@ -88,15 +88,21 @@ export function RingCatcherGame() {
   const [totalPlays, setTotalPlays] = useState(0)
   // 89번 줄 근처에 추가
   const [username, setUsername] = useState<string | null>(null);
-  // --- 1. 사운드 파일 저장소 (useRef) ---
+   // --- 1. 사운드 파일 저장소 (useRef) ---
   const soundRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
 
-  // --- 2. 사운드 미리 로드 (useEffect) ---
+  // --- 2. 사운드 미리 로드 및 에러 탐지 (useEffect) ---
   useEffect(() => {
     const soundNames = ['catch', 'fever', 'bomb', 'winner', 'gameover'];
     soundNames.forEach(name => {
       const audio = new Audio(`/sounds/${name}.mp3`);
-      audio.preload = 'auto'; 
+      audio.preload = 'auto';
+      
+      // 파일 로드 실패 시 콘솔에 구체적인 에러를 찍어줍니다.
+      audio.onerror = () => {
+        console.error(`🚨 사운드 로드 실패: /sounds/${name}.mp3 (파일명/확장자/대소문자 확인 필요)`);
+      };
+
       soundRefs.current[name] = audio;
     });
   }, []);
@@ -105,9 +111,9 @@ export function RingCatcherGame() {
   const playSound = useCallback((name: string) => {
     const audio = soundRefs.current[name];
     if (audio) {
-      audio.pause(); // 재생 중이면 일단 멈춤
-      audio.currentTime = 0; // 재생 위치를 0으로 초기화 (씹힘 방지 핵심!)
-      audio.play().catch(e => console.log("사운드 재생 실패:", e));
+      audio.pause();       
+      audio.currentTime = 0; // 재생 위치 초기화 (연속 재생 가능)
+      audio.play().catch(e => console.log(`${name} 재생 실패:`, e));
     }
   }, []);
 
