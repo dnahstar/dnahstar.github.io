@@ -314,7 +314,8 @@ window.addEventListener('click', playOnAction);
           stopBackgroundMusic(); 
           playSound('winner'); // pixabay에서 받으신 winner.mp3 재생
           setIsPlaying(false);
-          setIsGameOver(true);
+          setIsVictory(true);
+          setIsGameOver(false);
         } 
         // [Fever 보너스 체크] 500/1000/1500점 또는 25/50/75개
         else if (
