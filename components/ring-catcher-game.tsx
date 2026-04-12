@@ -790,46 +790,38 @@ useEffect(() => {
             </div>
           )}
 
-          {/* 승리 또는 게임 오버 팝업창 */}
-      {(isVictory || isGameOver) && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50">
-          <div className="bg-white p-8 rounded-2xl text-center max-w-sm w-full mx-4 shadow-2xl scale-100 transition-all">
-            {isVictory ? (
-              // 승리 화면 로직
-              <>
+      {isVictory && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-yellow-300/90 to-orange-400/90 backdrop-blur-sm">
+              <div className="text-center bg-white/95 p-8 rounded-lg shadow-2xl">
                 <div className="text-6xl mb-4">🏆</div>
-                <h2 className="text-3xl font-bold text-yellow-600 mb-2">승리!</h2>
-                <p className="text-xl font-semibold mb-4 text-gray-700">You are the best pioneer!!</p>
-              </>
-            ) : (
-              // 게임 오버 화면 로직
-              <>
-                <div className="text-6xl mb-4">⚠️</div>
-                <h2 className="text-3xl font-bold text-red-500 mb-2">게임 오버!</h2>
-                <p className="text-xl font-semibold mb-4 text-gray-700">다시 도전해 보세요!</p>
-              </>
-            )}
-            
-            {/* 공통 점수 표시판 */}
-            <div className="bg-gray-100 p-4 rounded-xl mb-6">
-              <p className="text-gray-600 text-sm mb-1">최종 점수</p>
-              <p className="text-2xl font-bold text-black mb-3">{score}</p>
-              <p className="text-gray-600 text-sm mb-1">잡은 고리</p>
-              <p className="text-2xl font-bold text-black">{caughtCount}개</p>
+                <div className="text-4xl font-bold mb-3 text-yellow-600">승리!</div>
+                <div className="text-2xl font-bold mb-4 text-black">You are the best pioneer!!</div>
+                <div className="text-lg mb-1 text-black">최종 점수: {score}</div>
+                <div className="text-sm mb-4 text-black/80">잡은 고리: {caughtCount}개</div>
+                <Button onClick={startGame} size="lg" className="gap-2 bg-yellow-600 hover:bg-yellow-700">
+                  <RotateCcw className="w-4 h-4" />
+                  다시 도전
+                </Button>
+              </div>
             </div>
+          )}
 
-            <button 
-              onClick={() => window.location.reload()} 
-              className="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg active:scale-95"
-            >
-              🔄 다시 시작하기
-            </button>
-          </div>
+          {isGameOver && !isVictory && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+              <div className="text-center bg-white/90 p-6 rounded-lg">
+                <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
+                <div className="text-3xl font-bold mb-2 text-black">게임 오버!</div>
+                <div className="text-lg mb-1 text-black">최종 점수: {score}</div>
+                <div className="text-sm mb-4 text-black/80">잡은 고리: {caughtCount}개</div>
+                <Button onClick={startGame} size="lg" className="gap-2">
+                  <RotateCcw className="w-4 h-4" />
+                  다시 시작
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
-
-        </div>
-
+        
         <div className="flex gap-2">
           {!isPlaying ? (
             <Button onClick={startGame} className="flex-1 gap-2" size="lg">
