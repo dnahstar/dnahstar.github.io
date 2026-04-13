@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { AlertCircle, Play, RotateCcw, HelpCircle, Heart } from "lucide-react"
 import { db } from '../lib/firebase';
-import { doc, setDoc, serverTimestamp, collection, query, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, collection, query, onSnapshot, increment } from 'firebase/firestore';
 
 const CANVAS_WIDTH = 400
 const CANVAS_HEIGHT = 600
@@ -92,6 +92,7 @@ export function RingCatcherGame() {
   const [username, setUsername] = useState<string | null>(null);
   // 실시간 접속자 수를 저장할 상태
 const [activeUsers, setActiveUsers] = useState(0);
+const [victoryCount, setVictoryCount] = useState(0);
 
 useEffect(() => {
   // game_results 컬렉션의 변화를 실시간으로 감시합니다.
@@ -107,21 +108,34 @@ useEffect(() => {
    // --- 1. 사운드 파일 저장소 (useRef) ---
   const soundRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const handleSaveScore = async (finalScore: number) => {
-    try {
-      // 로그인된 이름이 있으면 쓰고, 없으면 익명으로 저장
-      const userId = username || "anonymous_pioneer";
+  try {
+    const userId = username || "anonymous_pioneer";
+    const userRef = doc(db, "game_results", userId);
+
+    // 기본 저장 데이터 (점수 등)
+    const dataToSave: any = {
+      username: userId,
+      score: finalScore,
+      updatedAt: serverTimestamp(),
+      appName: "Pioneer-dream"
+    };
+
+    // 🏆 승리 조건(2000점) 달성 시 승리 횟수 1 증가 추가
+    if (finalScore >= 2000) {
+      dataToSave.victoryCount = increment(1);
+      dataToSave.lastVictory = serverTimestamp();
       
-      await setDoc(doc(db, "game_results", userId), {
-        username: userId,
-        score: finalScore,
-        updatedAt: serverTimestamp(),
-        appName: "Pioneer-dream"
-      }, { merge: true });
-      console.log("파이 데이터 저장 완료!");
-    } catch (e) {
-      console.error("저장 실패:", e);
+      // 화면에 바로 반영하기 위해 상태 업데이트
+      setVictoryCount(prev => prev + 1);
     }
-  };
+
+    await setDoc(userRef, dataToSave, { merge: true });
+    console.log("파이 데이터 저장 완료!");
+  } catch (e) {
+    console.error("저장 실패:", e);
+  }
+};
+
  const handleDonation = () => {
   if (!window.Pi) {
     alert("파이 브라우저에서 접속해주세요.");
@@ -842,20 +856,25 @@ useEffect(() => {
       </div>
 
       <Card className="p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <div className="text-sm text-black/70">점수</div>
-            <div className="text-3xl font-bold text-black">{score}</div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Heart className="w-5 h-5 text-red-500" />
-            <div className="text-2xl font-semibold text-black">{lives}</div>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-black/70">최고 점수</div>
-            <div className="text-2xl font-semibold text-black">{highScore}</div>
-          </div>
-        </div>
+  <div className="flex justify-between items-center mb-4">
+    {/* 왼쪽: 현재 점수 */}
+    <div>
+      <div className="text-sm text-black/70">점수</div>
+      <div className="text-3xl font-bold text-black">{score}</div>
+    </div>
+
+    {/* 가운데: 목숨 (기존 하트 유지) */}
+    <div className="flex items-center gap-2">
+      <Heart className="w-5 h-5 text-red-500" />
+      <div className="text-2xl font-semibold text-black">{lives}</div>
+    </div>
+
+    {/* 오른쪽: 누적 승리 (최고 점수 대체) */}
+    <div className="text-right">
+      <div className="text-sm text-black/70">누적 승리</div>
+      <div className="text-2xl font-semibold text-black">{victoryCount}회</div>
+    </div>
+  </div>
 
         <div className="flex gap-2 mb-4">
           <div className="flex-1 bg-blue-50 dark:bg-blue-950 p-2 rounded text-center">
