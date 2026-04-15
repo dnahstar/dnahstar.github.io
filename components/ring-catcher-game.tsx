@@ -136,7 +136,9 @@ useEffect(() => {
 
 const handleSaveScore = async (finalScore: number) => {
   // 1. 유저 아이디가 없으면 저장 자체를 시도하지 않음 (서버 보호)
-  if (!username) {
+  if (!username || username ===
+    "user_test_id" || username ===
+    "anonymous_pioneer") {
     console.error("인증된 사용자가 아닙니다.");
     return;
   }
@@ -741,6 +743,7 @@ window.addEventListener('click', playOnAction);
   useEffect(() => {
     if ((score >= 2000 || caughtCount >= 100) && isPlaying) {
       setIsVictory(true)
+      handleSaveScore(score);
       setIsPlaying(false)
       stopBackgroundMusic()
       if (dropIntervalRef.current) {
