@@ -144,7 +144,7 @@ const handleSaveScore = async (finalScore: number) => {
   }
 
   try {
-    const userRef = doc(db, "game_results", username);
+    const userRef = doc(collection(db, "game_results", username, "history"));
     const isVictory = finalScore >= 2000;
 
     // 2. 서버 데이터 업데이트
@@ -743,7 +743,7 @@ window.addEventListener('click', playOnAction);
   useEffect(() => {
     if ((score >= 2000 || caughtCount >= 100) && isPlaying) {
       setIsVictory(true)
-      handleSaveScore(score);
+      handleSaveScore(score >= 2000 ? score : 2000);
       setIsPlaying(false)
       stopBackgroundMusic()
       if (dropIntervalRef.current) {
