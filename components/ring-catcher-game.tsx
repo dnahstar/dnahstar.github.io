@@ -134,7 +134,7 @@ useEffect(() => {
 
 
 
-const handleSaveScore = async (finalScore: number) => {
+const handleSaveScore = async (finalScore: number, currentUsername: string) => {
   // 1. 유저 아이디가 없으면 저장 자체를 시도하지 않음 (서버 보호)
   if (!username) {
     console.error("인증된 사용자가 아닙니다.");
@@ -142,7 +142,7 @@ const handleSaveScore = async (finalScore: number) => {
   }
 
   try {
-    const userRef = doc(collection(db, "game_results", username, "history"));
+    const userRef = doc(collection(db, "game_results", currentUsername, "history"));
     const isVictory = finalScore >= 2000;
 
     // 2. 서버 데이터 업데이트
@@ -270,7 +270,7 @@ const handleSaveScore = async (finalScore: number) => {
 
 useEffect(() => {
   if (isGameOver && score > 0) {
-    handleSaveScore(score);
+    handleSaveScore(score, username);
   }
 }, [isGameOver, score]); 
 
@@ -741,7 +741,7 @@ window.addEventListener('click', playOnAction);
   useEffect(() => {
     if ((score >= 2000 || caughtCount >= 100) && isPlaying) {
       setIsVictory(true)
-      handleSaveScore(score >= 2000 ? score : 2000);
+      handleSaveScore(score >= 2000 ? score : 2000, username);
       setIsPlaying(false)
       stopBackgroundMusic()
       if (dropIntervalRef.current) {
