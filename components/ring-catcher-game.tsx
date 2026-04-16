@@ -143,6 +143,8 @@ if (!currentUsername || currentUsername === "username" || currentUsername === "n
 }
 
   try {
+    if (!currentUsername || currentUsername === "username") return;
+
     const userRef = doc(collection(db, "game_results", currentUsername, "history"));
     const isVictory = finalScore >= 2000;
 
@@ -155,7 +157,7 @@ if (!currentUsername || currentUsername === "username" || currentUsername === "n
       victoryCount: isVictory ? increment(1) : increment(0)
     }, { merge: true });
 
-    console.log(`${username}님의 데이터가 성공적으로 동기화되었습니다.`);
+    console.log(`${currentUsername}님의 데이터가 성공적으로 동기화되었습니다.`);
   } catch (e) {
     console.error("데이터 전송 중 오류 발생:", e);
   }
