@@ -134,14 +134,13 @@ useEffect(() => {
 }, [username]);
 
 
-
-
 const handleSaveScore = async (finalScore: number, currentUsername: string) => {
   // 1. 유저 아이디가 없으면 저장 자체를 시도하지 않음 (서버 보호)
-  if (!currentUsername) {
-    console.error("인증된 사용자가 아닙니다.");
-    return;
-  }
+ // 138번 줄 부근 수정
+if (!currentUsername || currentUsername === "username" || currentUsername === "null") {
+  console.error("❌ 유효하지 않은 이름으로 저장을 시도함:", currentUsername);
+  return; // 여기서 함수를 끝내버려서 서버 저장을 차단합니다.
+}
 
   try {
     const userRef = doc(collection(db, "game_results", currentUsername, "history"));
