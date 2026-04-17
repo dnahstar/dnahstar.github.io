@@ -145,17 +145,23 @@ if (!currentUsername || currentUsername === "username" || currentUsername === "n
   try {
     if (!currentUsername || currentUsername === "username") return;
 
-    const userRef = doc(db, "game_results", currentUsername);
+    const userHistoryRef = doc(collection(db, "game_results", currentUsername, "history"));
+    const userMainRef = doc(db, "game_results", currentUsername);
     const isVictory = finalScore >= 2000;
 
     // 2. 서버 데이터 업데이트
-    await setDoc(userRef, {
+    await setDoc(userHistoryRef, {
       username: currentUsername,
       score: finalScore,
-      updatedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
       // 승리했을 때만 정확히 1 증가, 아니면 그대로 유지
-      victoryCount: isVictory ? increment(1) : increment(0)
+      if(isVictory) {
+        await setDoc(userMainRef, {
+      victoryCount: increment(1),
+      lastVictoryAt: serverTimestamp()
     }, { merge: true });
+  }
 
     console.log(`${currentUsername}님의 데이터가 성공적으로 동기화되었습니다.`);
   } catch (e) {
