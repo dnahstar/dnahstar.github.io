@@ -135,49 +135,37 @@ useEffect(() => {
 }, [username]);
 
 
-// 138번 줄부터 시작되는 handleSaveScore 함수입니다.
+// handleSaveScore 부분을 아래 내용으로 완전히 교체하세요. 
+// "isVictory" 변수를 인자로 받지 말고 "finalScore"만 믿고 갑니다.
+
 const handleSaveScore = async (finalScore: number, currentUsername: string) => {
-  // 1. 보안 및 검증: 이름이 없거나 기본값이면 아예 시작도 안 함
-  if (!currentUsername || currentUsername === "username" || currentUsername === "null") {
-    console.error("❌ 유효하지 않은 이름으로 저장을 시도함:", currentUsername);
-    return;
-  }
+  // 아이디 체크 (파이 브라우저에서 읽어온 값 그대로 사용)
+  if (!currentUsername || currentUsername === "username") return;
 
-  // 2. 실제 저장 로직 시작
-  const saveGameResult = async () => {
-    try {
-      const userHistoryRef = doc(collection(db, "game_results", currentUsername, "history"));
-      const userMainRef = doc(db, "game_results", currentUsername);
+  try {
+    const userRef = doc(db, "game_results", currentUsername);
+    const historyRef = doc(collection(db, "game_results", currentUsername, "history"));
+
+    // 1. 히스토리는 점수 상관없이 무조건 저장
+    await setDoc(historyRef, {
+      score: finalScore,
+      updatedAt: serverTimestamp()
+    });
+
+    // 2. 승리 누적 (여기서 2000점을 직접 숫자로 비교합니다)
+    if (Number(finalScore) >= 2000) {
+      await setDoc(userRef, {
+        victoryCount: increment(1), // 이 명령어가 파이어베이스에서 숫자를 1씩 더해줍니다.
+        lastVictoryScore: finalScore,
+        lastVictoryAt: serverTimestamp(),
+        username: currentUsername
+      }, { merge: true });
       
-      // 승리 여부를 함수 내부에서 다시 한번 확실히 체크 (2000점 기준)
-      const isActuallyWon = finalScore >= 2000;
-
-      // (A) 히스토리 기록 저장
-      await setDoc(userHistoryRef, {
-        username: currentUsername,
-        score: finalScore,
-        updatedAt: serverTimestamp()
-      });
-
-      // (B) 승리했을 때만 누적 데이터 업데이트
-      if (isActuallyWon) {
-        await setDoc(userMainRef, {
-          victoryCount: increment(1),
-          lastVictoryAt: serverTimestamp(),
-          lastScore: finalScore,
-          username: currentUsername
-        }, { merge: true });
-        console.log("🏆 승리 데이터가 성공적으로 업데이트되었습니다!");
-      }
-
-      console.log(`${currentUsername}님의 전체 데이터 동기화 완료.`);
-    } catch (e) {
-      console.error("데이터 전송 중 오류 발생:", e);
+      console.log("🏆 파이 브라우저 승리 누적 성공!");
     }
-  };
-
-  // 정의한 함수를 실행
-  await saveGameResult();
+  } catch (e) {
+    console.error("❌ 파이 브라우저 저장 실패:", e);
+  }
 };
 
  const handleDonation = () => {
