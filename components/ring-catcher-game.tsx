@@ -98,7 +98,8 @@ const [victoryCount, setVictoryCount] = useState(0);
 
 // 96번 줄 근처 useEffect 수정
 useEffect(() => {
-  if (!username) return; // 아이디가 확인 안 되면 실행 안 함
+  if (!username || username === "username") return; // 아이디가 확인 안 되면 실행 안 함
+console.log;
 
   // 해당 유저의 문서를 실시간 감시 (OnSnapshot)
   const userRef = doc(db, "game_results", username);
@@ -143,7 +144,11 @@ if (!currentUsername || currentUsername === "username" || currentUsername === "n
 }
 
   try {
-    if (!currentUsername || currentUsername === "username") return;
+    if (!currentUsername || currentUsername === "username" || 
+      currentUsername === "null"
+    ) {console.error("X유효하지않은 이름으로 저장을 시도함:", currentUsername); 
+      return;
+    }
 
     const userHistoryRef = doc(collection(db, "game_results", currentUsername, "history"));
     const userMainRef = doc(db, "game_results", currentUsername);
