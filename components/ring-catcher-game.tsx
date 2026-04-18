@@ -96,81 +96,65 @@ useEffect(() => { usernameRef.current = username; }, [username]);
 const [activeUsers, setActiveUsers] = useState(0);
 const [victoryCount, setVictoryCount] = useState(0);
 
-// 96번 줄 근처 useEffect 수정
-useEffect(() => {
-  if (!username || username === "username" || username === "") return; // 아이디가 확인 안 되면 실행 안 함
-console.log;
-
-  // 해당 유저의 문서를 실시간 감시 (OnSnapshot)
-  const userRef = doc(db, "game_results", username);
-  const unsubscribe = onSnapshot(userRef, (doc) => {
-    if (doc.exists()) {
-      const data = doc.data();
-      // 서버에 저장된 승리 횟수를 로컬 상태에 실시간 반영
-      setVictoryCount(data.victoryCount || 0);
-    }
-  });
-
-  return () => unsubscribe();
-}, [username]);
-
-
    // --- 1. 사운드 파일 저장소 (useRef) ---
   const soundRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
  // 96번 줄 근처 useEffect 수정
-useEffect(() => {
-  if (!username) return; // 아이디가 확인 안 되면 실행 안 함
+  useEffect(() => {
+    // 1. 여기서도 'lost n found' 로직을 똑같이 적용합니다.
+    const actualId = (username && username !== "username" && username !== "null") 
+                     ? username 
+                     : "lost n found";
 
-  // 해당 유저의 문서를 실시간 감시 (OnSnapshot)
-  const userRef = doc(db, "game_results", username);
-  const unsubscribe = onSnapshot(userRef, (doc) => {
-    if (doc.exists()) {
-      const data = doc.data();
-      // 서버에 저장된 승리 횟수를 로컬 상태에 실시간 반영
-      setVictoryCount(data.victoryCount || 0);
-    }
-  });
+    // 2. 정제된 actualId를 사용하여 경로 설정
+    const victoryQuery = collection(db, "game_results", actualId, "victories");
 
-  return () => unsubscribe();
-}, [username]);
+    const unsubscribe = onSnapshot(victoryQuery, (snapshot) => {
+      setVictoryCount(snapshot.size);
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [username]); // 감시는 원래 변수인 username으로 합니다.
 
 
 // handleSaveScore 부분을 아래 내용으로 완전히 교체하세요. 
 // "isVictory" 변수를 인자로 받지 말고 "finalScore"만 믿고 갑니다.
 
 const handleSaveScore = async (finalScore: number, currentUsername: string) => {
-  // 1. 아이디가 없으면 'pioneer_temp'라고 강제로 이름을 지어줍니다 (차단 방지)
-  const safeId = (!currentUsername || currentUsername === "username" || currentUsername === "null") 
-                 ? "pioneer_temp" 
-                 : currentUsername;
+  // 1. 아이디가 없거나 기본값('username', 'null')이면 'lost n found'로 명명
+  const actualId = (currentUsername && currentUsername !== "username" && currentUsername !== "null") 
+                   ? currentUsername 
+                   : "lost n found"; 
 
-  console.log("🚀 저장 시도 아이디:", safeId);
+  console.log(`📦 데이터가 [${actualId}] 우체통으로 배달됩니다.`);
 
   try {
-    const userMainRef = doc(db, "game_results", safeId);
-    const userHistoryRef = doc(collection(db, "game_results", safeId, "history"));
-
-    // 2. 히스토리 저장 (await를 써서 확실히 기다립니다)
-    await setDoc(userHistoryRef, {
-      username: safeId,
+    // 2. 히스토리 저장 (유저별 또는 lost n found 폴더)
+    const historyRef = doc(collection(db, "game_results", actualId, "history"));
+    await setDoc(historyRef, {
+      username: actualId,
       score: finalScore,
       updatedAt: serverTimestamp()
     });
 
-    // 3. 2000점 승리 시 메인 필드 업데이트
+    // 3. 승리 시 하위 컬렉션에 기록 (누적 승리용)
     if (Number(finalScore) >= 2000) {
-      await setDoc(userMainRef, {
-        victoryCount: increment(1),
-        lastVictoryAt: serverTimestamp(),
-        lastScore: finalScore,
-        username: safeId
-      }, { merge: true });
+      const victoryLogRef = doc(collection(db, "game_results", actualId, "victories"));
       
-      alert("🎉 승리 데이터가 서버에 안전하게 기록되었습니다!");
+      await setDoc(victoryLogRef, {
+        wonAt: serverTimestamp(),
+        score: finalScore,
+        username: actualId
+      });
+      
+      // 사용자 경험을 위해 아이디가 있을 때만 축하 팝업
+      if (actualId !== "lost n found") {
+        alert(`🎉 ${actualId}님, 승리 기록이 안전하게 보관되었습니다!`);
+      }
     }
   } catch (e) {
-    console.error("❌ 서버 전송 실패:", e);
-    alert("저장 실패: " + e.message);
+    console.error("❌ 전송 실패:", e);
   }
 };
 
@@ -910,8 +894,8 @@ useEffect(() => {
 
     {/* 오른쪽: 누적 승리 (최고 점수 대체) */}
     <div className="text-right">
-      <div className="text-sm text-black/70">승리의 순간</div>
-      <div className="text-3xl font-semibold text-black">🏆</div>
+      <div className="text-sm text-black/70">누적점수</div>
+      <div className="text-2xl font-semibold text-black">{victoryCount}회</div>
     </div>
   </div>
 
